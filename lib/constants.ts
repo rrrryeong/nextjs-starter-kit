@@ -1,7 +1,7 @@
 // 사이트 기본 설정
 export const SITE_CONFIG = {
-  name: "StarterKit",
-  description: "Next.js 16 모던 웹 스타터킷",
+  name: "ondo | 온도",
+  description: "일상에 더하는 기분 좋은 온도. 오래 곁에 둘 생활용품을 만나보세요.",
   url: "https://example.com",
 } as const;
 
