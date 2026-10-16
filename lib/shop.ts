@@ -9,7 +9,7 @@ export const products = [
 
 export type Cart = Record<number, number>;
 export const TEST_ACCOUNT = { id: "ondo-test", name: "온도 테스트", email: "test@ondo.example" };
-export const TEST_COUPON = { id: "welcome-3000", name: "첫 만남 3,000원 할인 쿠폰", minimum: 30000, discount: 3000 };
+export const TEST_COUPON = { id: "welcome-3000", name: "첫 만남 3,000원 할인 쿠폰", minimum: 50000, discount: 3000 };
 export const money = (value: number) => value.toLocaleString("ko-KR") + "원";
 export const photo = (id: string, width = 700) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 

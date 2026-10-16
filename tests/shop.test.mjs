@@ -2,10 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { canUseCoupon, orderSummary, sanitizeCart } from '../lib/shop.ts';
 
-test('coupon requires merchandise subtotal of at least 30,000 won', () => {
+test('coupon requires merchandise subtotal of at least 50,000 won', () => {
   assert.equal(canUseCoupon(29999, true, false), false);
-  assert.equal(canUseCoupon(30000, true, false), true);
-  assert.equal(canUseCoupon(30001, true, false), true);
+  assert.equal(canUseCoupon(30000, true, false), false);
+  assert.equal(canUseCoupon(49999, true, false), false);
+  assert.equal(canUseCoupon(50000, true, false), true);
+  assert.equal(canUseCoupon(50001, true, false), true);
 });
 test('coupon belongs to the signed-in test account and can only be used once', () => {
   assert.equal(canUseCoupon(50000, false, false), false);
@@ -16,11 +18,26 @@ test('shipping cannot make a 29,000 won order eligible', () => {
     subtotal: 29000, eligible: false, discount: 0, shipping: 3000, total: 32000,
   });
 });
+test('orders between the old and new minimum cannot use the coupon', () => {
+  assert.deepEqual(orderSummary({6: 1}, true, true, false), {
+    subtotal: 32000, eligible: false, discount: 0, shipping: 3000, total: 35000,
+  });
+  assert.deepEqual(orderSummary({4: 2}, true, true, false), {
+    subtotal: 48000, eligible: false, discount: 0, shipping: 3000, total: 51000,
+  });
+});
 test('eligible orders get 3,000 won off only when selected', () => {
-  assert.equal(orderSummary({6: 1}, false, true, false).total, 35000);
-  assert.equal(orderSummary({6: 1}, true, true, false).total, 32000);
-  assert.equal(orderSummary({6: 1}, true, true, true).discount, 0);
-  assert.equal(orderSummary({6: 1}, true, false, false).discount, 0);
+  const cart = {1: 1, 6: 1};
+  assert.equal(orderSummary(cart, false, true, false).total, 50000);
+  assert.equal(orderSummary(cart, true, true, false).total, 47000);
+  assert.equal(orderSummary(cart, true, true, true).discount, 0);
+  assert.equal(orderSummary(cart, true, false, false).discount, 0);
+});
+test('reducing the cart below the minimum removes even a stale coupon selection', () => {
+  assert.equal(orderSummary({1: 1, 6: 1}, true, true, false).discount, 3000);
+  assert.deepEqual(orderSummary({6: 1}, true, true, false), {
+    subtotal: 32000, eligible: false, discount: 0, shipping: 3000, total: 35000,
+  });
 });
 test('free shipping uses the subtotal before discounts', () => {
   assert.deepEqual(orderSummary({1: 1, 6: 1}, true, true, false), {
